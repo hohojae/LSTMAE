@@ -39,15 +39,15 @@ def test(trained_data, len_data, mode): # trained_data = song_pitches or song_du
         enc_saver.restore(sess, "./save/" + sv_datetime + "/enc_{}_model.ckpt".format(mode))
         dec_saver.restore(sess, "./save/" + sv_datetime + "/dec_{}_model.ckpt".format(mode))
 
-        enc_out_state = sess.run(enc_out_state, feed_dict={enc_model.Enc_input: state_sample_data})
+        #enc_out_state = sess.run(enc_out_state, feed_dict={enc_model.Enc_input: state_sample_data})
 
         # avarage encoder state output
-        dec_in_state = np.mean(enc_out_state, 0).reshape([dec_model.batch_size, dec_model.enc_cell.state_size])
+        #dec_in_state = np.mean(enc_out_state, 0).reshape([dec_model.batch_size, dec_model.enc_cell.state_size])
 
         random_input_flag = 1
         if random_input_flag == 1:
             # random vector input in decoder initial state
-            np.random.seed(100)
+            #np.random.seed(100)
             dec_in_state = np.random.randn(1, dec_model.enc_cell.state_size)
 
         prediction = sess.run(dec_model.prediction, feed_dict={dec_model.Dec_state: dec_in_state})
@@ -72,7 +72,7 @@ def print_error(result, trained_data, mode):
         pearson_correlation = []
         result = result[1:]
         trained_data = trained_data[1:]
-        for i in range(0, len(result)):
+        for i in range(0, len(result)): # result에서 'Rest'값을 trained_data의 mean값으로 대치
             if result[i] == 'Rest':
                 result[i] = np.mean(trained_data)
         error = [abs(int(x) - int(y)) for x, y in zip(result, trained_data)]
@@ -170,13 +170,13 @@ def main(_):
     songs_pitches = []
     songs_durations = []
     for song in songs:
-
+        '''
         print("name : ", song['name'])
         print("length : ", song['length'])
         print("pitches : ", song['pitches'])
         print("durations : ", song['durations'])
         print("")
-
+        '''
         songs_name += "_" + song['name']
         songs_len.append(song['length'])
         songs_pitches.append(song['pitches'])
@@ -193,9 +193,7 @@ def main(_):
     durations = test(songs_durations, MIN_SONG_LENGTH, mode='duration')
 
     # make midi file
-    filename = sv_datetime
-
-    util.song2midi(pitches, durations, '/generate', filename)
+    util.song2midi(pitches, durations, './generate', filename)
 
 
 if __name__ == '__main__':
